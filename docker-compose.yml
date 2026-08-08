@@ -1,0 +1,59 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ai-chatbot-ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    networks:
+      - chatbot-net
+
+  # ดาวน์โหลดโมเดลให้อัตโนมัติตอนเริ่มระบบครั้งแรก (ทำงานครั้งเดียวแล้วจบ)
+  ollama-init:
+    image: ollama/ollama:latest
+    container_name: ai-chatbot-ollama-init
+    depends_on:
+      - ollama
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["until ollama list >/dev/null 2>&1; do sleep 2; done; ollama pull ${OLLAMA_MODEL:-llama3.2} && ollama pull ${OLLAMA_CODE_MODEL:-qwen2.5-coder:3b}"]
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    networks:
+      - chatbot-net
+
+  backend:
+    build: ./backend
+    container_name: ai-chatbot-backend
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2}
+      OLLAMA_CODE_MODEL: ${OLLAMA_CODE_MODEL:-qwen2.5-coder:3b}
+      OLLAMA_TIMEOUT: ${OLLAMA_TIMEOUT:-120}
+      APP_ORG_NAME: ${APP_ORG_NAME:-องค์กรของเรา}
+      APP_DB_PATH: /var/www/data/app.sqlite
+    volumes:
+      - backend_data:/var/www/data
+    depends_on:
+      - ollama
+    restart: unless-stopped
+    networks:
+      - chatbot-net
+
+  web:
+    build: ./frontend
+    container_name: ai-chatbot-web
+    depends_on:
+      - backend
+    ports:
+      - "8095:80"
+    restart: unless-stopped
+    networks:
+      - chatbot-net
+
+networks:
+  chatbot-net:
+    driver: bridge
+
+volumes:
+  ollama_data:
+  backend_data:

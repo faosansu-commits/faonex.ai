@@ -1,0 +1,14 @@
+# Environment / secrets
+.env
+
+# Node / SvelteKit
+frontend/node_modules/
+frontend/.svelte-kit/
+frontend/build/
+
+# Claude Code local state
+.claude/
+
+# OS
+Thumbs.db
+.DS_Store
