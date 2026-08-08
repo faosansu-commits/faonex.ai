@@ -5,12 +5,20 @@ export default {
 		extend: {
 			colors: {
 				ink: {
-					950: '#07070c',
-					900: '#0d0d16',
-					850: '#111120',
-					800: '#15152a',
-					700: '#1f1f38',
-					600: '#2b2b4a'
+					950: 'rgb(var(--c-ink-950) / <alpha-value>)',
+					900: 'rgb(var(--c-ink-900) / <alpha-value>)',
+					850: 'rgb(var(--c-ink-850) / <alpha-value>)',
+					800: 'rgb(var(--c-ink-800) / <alpha-value>)',
+					700: 'rgb(var(--c-ink-700) / <alpha-value>)',
+					600: 'rgb(var(--c-ink-600) / <alpha-value>)'
+				},
+				slate: {
+					100: 'rgb(var(--c-slate-100) / <alpha-value>)',
+					200: 'rgb(var(--c-slate-200) / <alpha-value>)',
+					300: 'rgb(var(--c-slate-300) / <alpha-value>)',
+					400: 'rgb(var(--c-slate-400) / <alpha-value>)',
+					500: 'rgb(var(--c-slate-500) / <alpha-value>)',
+					600: 'rgb(var(--c-slate-600) / <alpha-value>)'
 				}
 			},
 			fontFamily: {

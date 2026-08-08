@@ -2,7 +2,9 @@
 	import { login } from '$lib/api.js';
 	import { user } from '$lib/stores.js';
 	import { goto } from '$app/navigation';
+	import { t } from '$lib/i18n.js';
 	import Logo from '$lib/Logo.svelte';
+	import Settings from '$lib/Settings.svelte';
 
 	let username = '';
 	let password = '';
@@ -28,6 +30,8 @@
 	<div class="pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full bg-violet-600/25 blur-[120px]"></div>
 	<div class="pointer-events-none absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-fuchsia-600/20 blur-[120px]"></div>
 
+	<div class="absolute right-4 top-4"><Settings /></div>
+
 	<form
 		on:submit|preventDefault={handleSubmit}
 		class="relative w-full max-w-sm rounded-2xl border border-white/10 bg-ink-900/80 p-8 shadow-glow-lg backdrop-blur-xl"
@@ -38,7 +42,7 @@
 				<h1 class="text-2xl font-bold leading-none">
 					<span class="brand-text">FAONEX</span><span class="text-violet-400">.AI</span>
 				</h1>
-				<p class="mt-1 text-xs text-slate-500">เข้าสู่ระบบเพื่อเริ่มการสนทนา</p>
+				<p class="mt-1 text-xs text-slate-500">{$t('login.subtitle')}</p>
 			</div>
 		</div>
 
@@ -49,16 +53,19 @@
 		{/if}
 
 		<label class="mb-3 block text-sm">
-			<span class="mb-1 block text-slate-400">ชื่อผู้ใช้</span>
+			<span class="mb-1 block text-slate-400">{$t('login.username')}</span>
 			<input
 				bind:value={username}
 				required
 				autocomplete="username"
+				autocapitalize="none"
+				autocorrect="off"
+				spellcheck="false"
 				class="w-full rounded-lg border border-ink-600 bg-ink-800 px-3 py-2 text-sm text-slate-100 placeholder-slate-500 transition focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/40"
 			/>
 		</label>
 		<label class="mb-6 block text-sm">
-			<span class="mb-1 block text-slate-400">รหัสผ่าน</span>
+			<span class="mb-1 block text-slate-400">{$t('login.password')}</span>
 			<input
 				type="password"
 				bind:value={password}
@@ -73,11 +80,11 @@
 			disabled={loading}
 			class="w-full rounded-lg bg-gradient-to-r from-violet-600 to-fuchsia-600 px-4 py-2.5 text-sm font-medium text-white shadow-glow transition hover:shadow-glow-lg disabled:opacity-50"
 		>
-			{loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
+			{loading ? $t('login.submitLoading') : $t('login.submit')}
 		</button>
 
 		<p class="mt-4 text-center text-sm text-slate-500">
-			ยังไม่มีบัญชี? <a href="/register" class="font-medium text-violet-400 hover:text-violet-300">สมัครสมาชิก</a>
+			{$t('login.noAccount')} <a href="/register" class="font-medium text-violet-400 hover:text-violet-300">{$t('login.registerLink')}</a>
 		</p>
 	</form>
 </div>

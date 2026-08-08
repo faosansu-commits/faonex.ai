@@ -1,4 +1,44 @@
 services:
+  mysql:
+    image: mariadb:11
+    container_name: ai-chatbot-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-faonex_root_change_me}
+      MYSQL_DATABASE: ${DB_NAME:-faonex}
+      MYSQL_USER: ${DB_USER:-faonex}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-faonex_change_me}
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - chatbot-net
+
+  # หน้าเว็บจัดการฐานข้อมูล สำหรับผู้ดูแลระบบ — เข้าที่ http://<โฮสต์>:8096
+  # ล็อกอินด้วย DB_USER/DB_PASSWORD (หรือ root/DB_ROOT_PASSWORD) จาก .env
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: ai-chatbot-phpmyadmin
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      UPLOAD_LIMIT: 64M
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8096:80"
+    restart: unless-stopped
+    networks:
+      - chatbot-net
+
   ollama:
     image: ollama/ollama:latest
     container_name: ai-chatbot-ollama
@@ -28,13 +68,31 @@ services:
       OLLAMA_HOST: http://ollama:11434
       OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2}
       OLLAMA_CODE_MODEL: ${OLLAMA_CODE_MODEL:-qwen2.5-coder:3b}
+      OLLAMA_VISION_MODEL: ${OLLAMA_VISION_MODEL:-llava-phi3}
+      OLLAMA_EMBED_MODEL: ${OLLAMA_EMBED_MODEL:-nomic-embed-text}
+      APP_RAG_TOP_K: ${APP_RAG_TOP_K:-4}
+      APP_RAG_SIMILARITY_THRESHOLD: ${APP_RAG_SIMILARITY_THRESHOLD:-0.35}
       OLLAMA_TIMEOUT: ${OLLAMA_TIMEOUT:-120}
+      OLLAMA_STREAM_TIMEOUT: ${OLLAMA_STREAM_TIMEOUT:-600}
+      OLLAMA_NUM_CTX: ${OLLAMA_NUM_CTX:-8192}
+      OLLAMA_NUM_PREDICT: ${OLLAMA_NUM_PREDICT:--1}
       APP_ORG_NAME: ${APP_ORG_NAME:-องค์กรของเรา}
-      APP_DB_PATH: /var/www/data/app.sqlite
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-faonex}
+      DB_USER: ${DB_USER:-faonex}
+      DB_PASSWORD: ${DB_PASSWORD:-faonex_change_me}
+      APP_DEFAULT_DAILY_REQUEST_LIMIT: ${APP_DEFAULT_DAILY_REQUEST_LIMIT:-100}
+      APP_DEFAULT_DAILY_TOKEN_LIMIT: ${APP_DEFAULT_DAILY_TOKEN_LIMIT:-20000}
     volumes:
-      - backend_data:/var/www/data
+      # อ่านอย่างเดียว (read-only) ใช้สำหรับหน้า Dashboard แอดมินดู CPU/RAM/Disk ของโฮสต์เท่านั้น
+      - /proc:/host/proc:ro
+      - /:/host/rootfs:ro
     depends_on:
-      - ollama
+      ollama:
+        condition: service_started
+      mysql:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - chatbot-net
@@ -56,4 +114,4 @@ networks:
 
 volumes:
   ollama_data:
-  backend_data:
+  mysql_data:

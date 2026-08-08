@@ -40,7 +40,7 @@ final class ConversationStore
         $pdo = Database::connection();
         $stmt = $pdo->prepare('INSERT INTO messages (conversation_id, role, content) VALUES (?, ?, ?)');
         $stmt->execute([$conversationId, $role, $content]);
-        $pdo->prepare("UPDATE conversations SET updated_at = datetime('now') WHERE id = ?")->execute([$conversationId]);
+        $pdo->prepare('UPDATE conversations SET updated_at = NOW() WHERE id = ?')->execute([$conversationId]);
     }
 
     public static function delete(int $id, int $userId): bool
@@ -57,6 +57,22 @@ final class ConversationStore
         return true;
     }
 
+    public static function deleteAllForUser(int $userId): void
+    {
+        $pdo = Database::connection();
+        $stmt = $pdo->prepare('SELECT id FROM conversations WHERE user_id = ?');
+        $stmt->execute([$userId]);
+        $ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        if (empty($ids)) {
+            return;
+        }
+
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $pdo->prepare("DELETE FROM messages WHERE conversation_id IN ($placeholders)")->execute($ids);
+        $pdo->prepare("DELETE FROM conversations WHERE id IN ($placeholders)")->execute($ids);
+    }
+
     public static function makeTitle(string $firstMessage): string
     {
         $title = trim(preg_replace('/\s+/', ' ', $firstMessage));
@@ -64,6 +80,6 @@ final class ConversationStore
             $title = mb_substr($title, 0, 40) . '…';
         }
 
-        return $title !== '' ? $title : 'บทสนทนาใหม่';
+        return $title !== '' ? $title : 'แชทใหม่';
     }
 }

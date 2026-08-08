@@ -6,6 +6,10 @@ frontend/node_modules/
 frontend/.svelte-kit/
 frontend/build/
 
+# PHP (Composer) — copied out of the container just so the IDE can resolve
+# classes; the real one used at runtime is built fresh inside Docker
+backend/vendor/
+
 # Claude Code local state
 .claude/
 

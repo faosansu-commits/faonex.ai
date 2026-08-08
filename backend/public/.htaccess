@@ -1,3 +1,9 @@
 RewriteEngine On
+
+# Apache/mod_php ไม่ส่ง Authorization header ให้ PHP โดยดีฟอลต์ ต้องดึงมาเองผ่าน RewriteRule
+# (จำเป็นสำหรับ API key auth ของ /v1/*)
+RewriteCond %{HTTP:Authorization} ^(.*)
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%1]
+
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^ index.php [QSA,L]
