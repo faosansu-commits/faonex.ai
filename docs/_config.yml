@@ -1,0 +1,35 @@
+title: FAONEX.AI — ตำราออนไลน์
+description: คู่มือฉบับสมบูรณ์สำหรับติดตั้ง ใช้งาน และดูแลระบบ FAONEX.AI แบบละเอียดทุกขั้นตอน
+lang: th
+
+remote_theme: just-the-docs/just-the-docs
+plugins:
+  - jekyll-remote-theme
+
+color_scheme: dark
+search_enabled: true
+heading_anchors: true
+
+nav_sort: case_insensitive
+
+aux_links:
+  "GitHub Repository":
+    - "https://github.com/faosansu-commits/faonex.ai"
+
+footer_content: "© FAONEX.AI — ตำราออนไลน์นี้จัดทำขึ้นเพื่อประกอบการติดตั้งและใช้งานระบบ"
+
+callouts:
+  note:
+    title: หมายเหตุ
+    color: blue
+  warning:
+    title: ข้อควรระวัง
+    color: yellow
+  important:
+    title: สำคัญ
+    color: red
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor/
